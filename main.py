@@ -1,53 +1,97 @@
 import math
-# import matplotlib.pyplot as plt
-# from matplotlib.animation import FuncAnimation
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
-sum = 0
+
 doty = []
-dotx = [0]
-x = 0
+dotx = []
+f = 'cos' #['cos', 'sin', 'exp']
 
-def funSen(x):
-    return math.sin(x)
+dictfuncs = {
+    'cos': {
+        5:{
+            'x':[],
+            'y':[]
+        },
+        10:{
+            'x':[],
+            'y':[]
+        },
+        30:{
+            'x':[],
+            'y':[]
+        }
+    },
+    'sin': {
+        5:{
+            'x':[],
+            'y':[]
+        },
+        10:{
+            'x':[],
+            'y':[]
+        },
+        30:{
+            'x':[],
+            'y':[]
+        }
+    }
 
-def funCos(x):
-    return math.cos(x)
+}
 
 def maclurin(func: str, lim: float, n: int):
 
-    global sum
-    global x
-    a = 0
+    for n in [5, 10, 30]:
+        
+        x = 0.0
+        sum = 0
+        a = 0
+        if func == 'sin':
 
-    if func == 'sin':
+            while (x <= lim):
+                
+                for i in range(0,n):
+                    sum += ((-1) ** (i)) * (x ** (2 * i + 1)) / math.factorial(2*i+1)
+                           
+                #print(f'a: {a} - Ponto: {x} - Suma: {sum}')
 
-        while (x <= lim):
-            
-            for i in range(0,n):
-                sum += ((-1) ** (i)) * (x ** (2 * i + 1)) / math.factorial(2*i+1)
+                dictfuncs[func][n]['y'].append(sum)  
+                dictfuncs[func][n]['x'].append(x)
 
-            doty.append(sum)             
-            print(f'a: {a} - Ponto: {x} - Suma: {sum}')
-            a = a + 1
-            sum = 0
-            x += math.pi / 10
-            dotx.append(x)
+                x += math.pi / 10
+                sum = 0
+                a = a + 1
+                
+        elif func == 'cos':
 
-    elif func == 'cos':
+            while (x <= lim):
 
-        while (x <= lim):
-            for i in range(0,n):
-                sum += ((-1) ** (i)) * (x ** (2 * i)) / math.factorial(2*i)
-            doty.append(sum)          
-            print(f'a: {a} - Ponto: {x} - Suma: {sum}')
-            a = a + 1
-            sum = 0
-            x += math.pi / 10
-            dotx.append(x)
+                for i in range(0,n):
+                    sum += ((-1) ** (i)) * (x ** (2 * i)) / math.factorial(2*i)
+                    
+                #print(f'a: {a} - Ponto: {x} - Soma: {sum}')
 
+                dictfuncs[func][n]['y'].append(sum) 
+                dictfuncs[func][n]['x'].append(x)
+
+                x += math.pi / 10
+                sum = 0
+                a = a + 1
 
 
-maclurin('cos', 2 * math.pi, 10)
-del dotx[-1]
-print(dotx)
-print(doty)
+
+maclurin(f, 2 * math.pi, 10)
+
+fig, ax = plt.subplots()
+
+def update(i):
+
+    ax.clear()
+    ax.set_xlim([0,10])
+    ax.set_ylim([-1,11.5])
+    ax.plot(dictfuncs[f][5]['x'][:i], dictfuncs[f][5]['y'][:i], color='red')
+    ax.plot(dictfuncs[f][10]['x'][:i], dictfuncs[f][10]['y'][:i], color='blue')
+    ax.plot(dictfuncs[f][30]['x'][:i], dictfuncs[f][30]['y'][:i], color='green')
+
+ani = animation.FuncAnimation(fig=fig, func=update, frames=len(dictfuncs[f][5]['x']), interval=45, repeat=False)
+plt.show()
