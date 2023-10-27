@@ -1,4 +1,4 @@
-##Objetivo
+## Objetivo
 
 Calcular as aproximações para as funções f(x)=sen(x), g(x)=cosx e
 h(x)=x.e
