@@ -1,12 +1,13 @@
 import math
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import numpy as np
 from sympy import *
 
 
 doty = []
 dotx = []
-f = 'exp' #['cos', 'sin', 'exp']
+f = 'cos' #['cos', 'sin', 'exp']
 
 x_exp = Symbol('x')
 func_exp = x_exp * exp(-2*x_exp)
@@ -57,7 +58,12 @@ dictfuncs = {
 
 }
 
-def maclurin(func: str, lim: float, n: int):
+def maclurin(func: str):
+    if func == 'exp':
+        lim = 4
+
+    else:
+        lim = 2*math.pi
 
     for n in [5, 10, 30]:
 
@@ -112,24 +118,29 @@ def maclurin(func: str, lim: float, n: int):
               a = a + 1
 
 
-maclurin(f, 4, 10)
+maclurin(f)
 
 fig, ax = plt.subplots()
-
-print(dictfuncs[f][5]['x'], dictfuncs[f][5]['y'])
 
 def update(i):
 
     ax.clear()
     if f == 'exp':
-      ax.set_xlim([0,5])
-      ax.set_ylim([-360,276])
+      ax.set_xlim([0,3.85])
+      ax.set_ylim([0,0.55])
     else:  
       ax.set_xlim([0,7])
       ax.set_ylim([-1,15])
-    ax.plot(dictfuncs[f][5]['x'][:i], dictfuncs[f][5]['y'][:i], color='red')
-    ax.plot(dictfuncs[f][10]['x'][:i], dictfuncs[f][10]['y'][:i], color='blue')
-    ax.plot(dictfuncs[f][30]['x'][:i], dictfuncs[f][30]['y'][:i], color='green')
+    ax.plot(dictfuncs[f][5]['x'][:i], dictfuncs[f][5]['y'][:i], color='red', linestyle= '', marker='*')
+    ax.plot(dictfuncs[f][10]['x'][:i], dictfuncs[f][10]['y'][:i], color='blue', linestyle= '', marker='h')
+    ax.plot(dictfuncs[f][30]['x'][:i], dictfuncs[f][30]['y'][:i], color='green', linestyle= '', marker='o')
+
+    if f == 'exp':
+        ax.plot(dictfuncs[f][30]['x'][:i], np.multiply(dictfuncs[f][30]['x'][:i], np.float_power(math.e, (np.multiply(-2, dictfuncs[f][30]['x'][:i])))), color='orange', linestyle= '', marker= 'x')
+    elif f == 'sin':
+        ax.plot(dictfuncs[f][30]['x'][:i], np.sin(dictfuncs[f][30]['x'][:i]), color='orange', linestyle= '', marker= 'x')
+    elif f == 'cos':
+        ax.plot(dictfuncs[f][30]['x'][:i],  np.cos(dictfuncs[f][30]['x'][:i]), color='orange', linestyle= '', marker= 'x')
 
 ani = animation.FuncAnimation(fig=fig, func=update, frames=len(dictfuncs[f][5]['x']), interval=45, repeat=False)
 plt.show()
