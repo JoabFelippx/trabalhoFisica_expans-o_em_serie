@@ -1,258 +1,195 @@
 import math
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import numpy as np
 from sympy import *
 
 
-doty = []
-dotx = []
-f = 'dipole' #['cos', 'sin', 'exp', quadripole, dipole]
+#Lista de pontos para plotar o gráfico
+dotx_5 = []
+doty_5 = []
 
+dotx_10 = []
+doty_10 = []
+
+dotx_30 = []
+doty_30 = []
+
+#Simbolos para o sympy
 x_exp = Symbol('x')
 u = Symbol('u')
+
+#Função exponecial
 func_exp = x_exp * exp(-2*x_exp)
 
+#Função para escrever os pontos no arquivo .dat
+def mkDotFile(func, n, dotsx, dotsy):
+    with open(f'{func}_{n}.dat', 'w') as file:
+        for dot in range(len(dotsx)):
+            file.write(f'{dotsx[dot]} {dotsy[dot]}\n')
 
+def createList(n, x, sum):
 
+    global dotx_5, doty_5, dotx_10, doty_10, dotx_30, doty_30
 
-dictfuncs = {
-    'cos': {
-        5:{
-            'x':[],
-            'y':[]
-        },
-        10:{
-            'x':[],
-            'y':[]
-        },
-        30:{
-            'x':[],
-            'y':[]
-        }
-    },
-    'sin': {
-        5:{
-            'x':[],
-            'y':[]
-        },
-        10:{
-            'x':[],
-            'y':[]
-        },
-        30:{
-            'x':[],
-            'y':[]
-        }
-    },
-  'exp': {
-      5:{
-          'x':[],
-          'y':[]
-      },
-      10:{
-          'x':[],
-          'y':[]
-      },
-      30:{
-          'x':[],
-          'y':[]
-      }
-  },
-  'quadripole': {
-      5:{
-          'x':[],
-          'y':[]
-      },
-      10:{
-          'x':[],
-          'y':[]
-      },
-      30:{
-          'x':[],
-          'y':[]
-      }
-  },
-  'dipole': {
-      5:{
-          'x':[],
-          'y':[]
-      },
-      10:{
-          'x':[],
-          'y':[]
-      },
-      30:{
-          'x':[],
-          'y':[]
-      }
-  }
+    if n == 5:
+        dotx_5.append(x)
+        doty_5.append(sum)
 
-}
+    elif n == 10:
+        dotx_10.append(x)
+        doty_10.append(sum)
+    else:
+        dotx_30.append(x)
+        doty_30.append(sum)
 
-def mkDotdata(func, n,dots_x, dots_y):
-    with open(f'{func}_{n}_data.dat', 'w') as f:
-        for dot in range(len(dots_x)):
-            f.write(f'{dots_x[dot]} {dots_y[dot]}\n')    
+def real_Func(func,x):
 
-
-def maclurin(func: str):
+    if func == 'sin':
+        return np.sin(x)
+    elif func == 'cos':
+        return np.cos(x)
+    elif func == 'exp':
+        return np.multiply(x, np.float_power(math.e, (np.multiply(-2, x))))    
+    elif func == 'dipole':
+        return  np.subtract(np.power(np.add(1, x), -2),np.power(np.subtract(1, x), -2))
+    elif func == 'quadripole':
+        return  np.subtract(np.add(np.power(np.add(1, x), -2), np.power(np.subtract(1, x), -2)),2)
+    
+def expan_sin():
 
     for n in [5, 10, 30]:
 
         x = 0
         sum = 0
+        limit = 2*math.pi
 
-        if func == 'sin':
-            lim = 2*math.pi
-            while (x <= lim):
+        while x <= limit:
 
-                for i in range(0,n):
-                    sum += ((-1) ** (i)) * (x ** (2 * i + 1)) / math.factorial(2*i+1)
+            for k in range(0, n):
+                sum += ((-1)**k)*(x**(2*k + 1))/math.factorial(2*k + 1)
+        
+            createList(n, x, sum)
+            x += math.pi/10
+            sum = 0
 
-                #print(f'a: {a} - Ponto: {x} - Suma: {sum}')
 
-                dictfuncs[func][n]['y'].append(sum)  
-                dictfuncs[func][n]['x'].append(x)
+def expan_cos():
 
-                x += math.pi / 10
-                sum = 0    
+    for n in [5, 10, 30]:
 
-            mkDotdata(func, n, dictfuncs[func][n]['x'], dictfuncs[func][n]['y'])
+        x = 0
+        sum = 0
+        limit = 2*math.pi
 
-        elif func == 'cos':
-            lim = 4
-            while (x <= lim):
+        while x <= limit:
 
-                for i in range(0,n):
-                    sum += ((-1) ** (i)) * (x ** (2 * i)) / math.factorial(2*i)
+            for k in range(0, n):
+                sum += ((-1)**k)*(x**(2*k))/math.factorial(2*k)
 
-                #print(f'a: {a} - Ponto: {x} - Soma: {sum}')
 
-                dictfuncs[func][n]['y'].append(sum) 
-                dictfuncs[func][n]['x'].append(x)
+            createList(n, x, sum)
+            x += math.pi/10
+            sum = 0
 
-                x += math.pi / 10
-                sum = 0
 
-            mkDotdata(func, n, dictfuncs[func][n]['x'], dictfuncs[func][n]['y'])
-               
+def expan_exp():
+    
+    for n in [5, 10, 30]:
+        
+        x = 0
+        sum = 0
+        limit = 4
 
-        elif func == 'exp':
-            lim = 4
-            while (x <= lim):
-              
-              for i in range(0, n):
-                
-                sum += (diff(func_exp, x_exp, i).subs(x_exp, 0) * (x_exp ** i)) / math.factorial(i)
+        while x <= limit:
+            
+
+            for k in range(0, n):
+                sum += (diff(func_exp, x_exp, k).subs(x_exp, 0)*(x_exp**k))/math.factorial(k)
                 sum = sum.subs(x_exp, x)
-              dictfuncs[func][n]['y'].append(sum) 
-              dictfuncs[func][n]['x'].append(x)
 
-              x += 4 / 20
-              sum = 0
-            mkDotdata(func, n, dictfuncs[func][n]['x'], dictfuncs[func][n]['y'])
-        elif func == 'dipole':
-            diff_sum = 0          
-            x = 1
-            lim = 0
-            while lim < 20:
-                y = 1/2*x
-                for i in range(0, n):
-                    
-                    g = (u) ** ((i+1))
-                    f = (u) ** ((i+1))
-
-                    g_diff = diff(g, u) 
-                    f_diff = diff(f, u) * ((-1) ** (i))
-                    
-                    diff_sum += f_diff - g_diff
-                    diff_sum = diff_sum.subs(u, x)
-
-                dictfuncs[func][n]['y'].append(diff_sum)
-                dictfuncs[func][n]['x'].append(y)
-                x += 1/20 
-                print(y)
-                diff_sum = 0          
-                lim += 1
-
-            dictfuncs[func][n]['y'] = dictfuncs[func][n]['y']
-            mkDotdata(func, n, dictfuncs[func][n]['x'], dictfuncs[func][n]['y'])
-
-        elif func == 'quadripole':
-            diff_sum = -2
-            x = 0.00000000000000000000000000001
-            lim = 1
-            while (x < lim):
-                y = 1/1*x
-                for i in range(0, n):
-                    
-                    g = (u) ** ((i+1))
-                    f = (u) ** ((i+1))
-
-                    g_diff = diff(g, u) 
-                    f_diff = diff(f, u) * ((-1) ** (i))
-                    
-                    diff_sum += f_diff + g_diff
-                    diff_sum = diff_sum.subs(u, x)
-                
-                dictfuncs[func][n]['y'].append(diff_sum)
-                dictfuncs[func][n]['x'].append(y)
-                x += 1/20 
-                print(y)
-                diff_sum = -2          
-
-            dictfuncs[func][n]['y'] = dictfuncs[func][n]['y'][::-1]
-            mkDotdata(func, n, dictfuncs[func][n]['x'], dictfuncs[func][n]['y'])
+            createList(n, x, sum)
+            x += 0.1
+            sum = 0
 
 
-maclurin(f)
+def expan_dipole():
 
-fig, ax = plt.subplots()
+    for n in [5, 10, 30]:
+        x = 0.000000000000001
+        sum = 0
+        limit = 1
+        while x <= limit:
+
+            for k in range(n):
+
+                func_f = u ** (k+1)
+                func_g = func_f # u ** (n + 1)
+
+                f_diff = diff(func_f, u) * ((-1)**(k))
+                g_diff = diff(func_g, u)
+
+                sum += f_diff - g_diff
+                sum = sum.subs(u, x)
+
+            createList(n, x, sum)
+            x += 1/20
+            sum = 0
+
+def expan_quadripole():
+
+    for n in [5, 10, 30]:
+        x = 0.000000000000001
+        sum = 0
+        limit = 1
+        while x <= limit:
+
+            for k in range(n):
+
+                func_f = u ** (k + 1)
+                func_g = func_f # u ** (n + 1)
+
+                f_diff = diff(func_f, u)
+                g_diff = diff(func_g, u) * ((-1)**(k))
+
+                sum += f_diff + g_diff
+                sum = sum.subs(u, x)
+
+            createList(n, x, sum)
+            x += 1/20
+            sum = 0
 
 
-def update(i):
+f = input('Digite a função: ')
 
-    ax.clear()
-
-    if f == 'quadripole':
-        a = np.subtract(np.add(np.power(np.add(1, dictfuncs[f][30]['x'][:i]), -2), np.power(np.subtract(1, dictfuncs[f][30]['x'][:i]), -2)),2)[::-1]
-        #print(a)
-        print(dictfuncs[f][30]['y'][:i])
-        pass
-
-    if f == 'exp':
-        ax.set_xlim([0,3.85])
-        ax.set_ylim([-0.55,0.55])
-    elif f == 'quadripole':
-        # ax.set_xlim([0,1])
-        # ax.set_ylim([-200,100])
-        pass
-    elif f == 'dipole':
-        # ax.set_xlim([0,0.5])
-        # ax.set_ylim([-20,0])
-        b = np.subtract(np.power(np.add(1, dictfuncs[f][30]['x'][:i]), -2), np.power(np.subtract(1, dictfuncs[f][30]['x'][:i]), -2))
-        print(b)
-    else:  
-        ax.set_xlim([0,7])
-        ax.set_ylim([-5,10])
-
-    ax.plot(dictfuncs[f][5]['x'][:i], dictfuncs[f][5]['y'][:i], color='red', linestyle= '', marker='*')
-    ax.plot(dictfuncs[f][10]['x'][:i], dictfuncs[f][10]['y'][:i], color='blue', linestyle= '', marker='h')
-    ax.plot(dictfuncs[f][30]['x'][:i], dictfuncs[f][30]['y'][:i], color='green', linestyle= '', marker='o')
-
-    if f == 'exp':
-        ax.plot(dictfuncs[f][30]['x'][:i], np.multiply(dictfuncs[f][30]['x'][:i], np.float_power(math.e, (np.multiply(-2, dictfuncs[f][30]['x'][:i])))), color='orange', linestyle= '', marker= 'x')
-    elif f == 'sin':
-        ax.plot(dictfuncs[f][30]['x'][:i], np.sin(dictfuncs[f][30]['x'][:i]), color='orange', linestyle= '', marker= 'x')
-    elif f == 'cos':
-        ax.plot(dictfuncs[f][30]['x'][:i],  np.cos(dictfuncs[f][30]['x'][:i]), color='orange', linestyle= '', marker= 'x')
-    elif f == 'quadripole':
-        ax.plot(dictfuncs[f][30]['x'][:i],  a, color='orange', linestyle= '-', marker= 'x')
-    elif f == 'dipole':
-        ax.plot(dictfuncs[f][30]['x'][:i],  b, dictfuncs[f][30]['x'][:i], color='orange', linestyle= '-', marker= 'x')         
-        pass
+if f == 'sin':
+    expan_sin()
+elif f == 'cos':
+    expan_cos()
+elif f == 'exp':
+    expan_exp()
+elif f == 'dipole':
+    expan_dipole()
+elif f == 'quadripole':
+    expan_quadripole()
+else:
+    print('Função não encontrada')
 
 
-ani = animation.FuncAnimation(fig=fig, func=update, frames=len(dictfuncs[f][5]['x']), interval=45, repeat=False)
+if f == 'dipole' or f == 'quadripole':
+
+    doty_5 = doty_5[::-1]
+    doty_10 = doty_10[::-1]
+    doty_30 = doty_30[::-1]
+
+mkDotFile(f, 5, dotx_5, doty_5)
+mkDotFile(f, 10, dotx_10, doty_10)
+mkDotFile(f, 30, dotx_30, doty_30)
+
+plt.plot(dotx_5, doty_5, color='red', linestyle= '', marker='*', label='n = 5')
+plt.plot(dotx_10, doty_10, color='green', linestyle= '', marker='h', label='n = 10')
+plt.plot(dotx_30, doty_30, color='blue', linestyle= '', marker='o', label='n = 30')
+plt.plot(dotx_30, real_Func(f, dotx_30)[::-1], color='yellow', linestyle= '-', label=f)
+
+plt.legend()
 plt.show()
+
