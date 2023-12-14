@@ -143,7 +143,7 @@ def expan_dipole():
         sum = 0
         limit = 1
         while x <= limit:
-            
+            y = 1/1*x
             for k in range(n):
                 
                 func_f = u ** (k+1)
@@ -153,9 +153,9 @@ def expan_dipole():
                 g_diff = diff(func_g, u)
 
                 sum += f_diff - g_diff
-                sum = sum.subs(u, x)
+                sum = sum.subs(u, y)
 
-            createList(n, x, sum)
+            createList(n, y, sum)
             x += 1/20
             sum = 0
 
@@ -166,7 +166,7 @@ def expan_quadripole():
         sum = -2
         limit = 1
         while x <= limit:
-
+            y = 1/1*x
             for k in range(n):
 
                 func_f = u ** (k + 1)
@@ -176,9 +176,9 @@ def expan_quadripole():
                 g_diff = diff(func_g, u) * ((-1)**(k))
 
                 sum += f_diff + g_diff
-                sum = sum.subs(u, x)
+                sum = sum.subs(u, y)
 
-            createList(n, x, sum)
+            createList(n, y, sum)
             x += 1/20
             sum = -2
 
@@ -197,6 +197,7 @@ elif f == 'quadripole':
 else:
     print('Função não encontrada')
 
+
 if f == 'dipole' or f == 'quadripole':
 
     doty_5 = doty_5[::-1]
@@ -209,10 +210,19 @@ mkDotFile(f)
 
 dotx_30_smooth, doty_30_smooth = smooth_line_points(dotx_30, (real_Func(f, dotx_30)[::-1]))
 
+
 plt.plot(dotx_5, doty_5, color='red', linestyle= '', marker='*', label='n = 5')
 plt.plot(dotx_10, doty_10, color='green', linestyle= '', marker='h', label='n = 10')
-plt.plot(dotx_30, doty_30, color='blue', linestyle= '', marker='o', label='n = 30')
-plt.plot(dotx_30_smooth, doty_30_smooth, color='yellow', linestyle= '-', label=f)
+plt.plot(dotx_30, doty_30, color='pink', linestyle= '', marker='o', label='n = 30')
+plt.plot(dotx_30_smooth, doty_30_smooth, color='black', linestyle= '-', label=f)
 
 plt.legend()
 plt.show()
+
+        
+
+        
+
+
+
+
